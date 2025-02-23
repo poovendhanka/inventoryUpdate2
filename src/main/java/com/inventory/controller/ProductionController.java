@@ -12,41 +12,56 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import com.inventory.model.HuskType;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/production")
 @RequiredArgsConstructor
 public class ProductionController extends BaseController {
-    
+
     private final ProductionService productionService;
     private final StockService stockService;
-    
+
     @GetMapping
-    public String showProductionPage(Model model, HttpServletRequest request) {
+    public String showProductionPage(Model model) {
         model.addAttribute("activeTab", "production");
         model.addAttribute("production", new Production());
         model.addAttribute("shifts", ShiftType.values());
+        model.addAttribute("huskTypes", HuskType.values());
+
+        // Add all stock levels
         model.addAttribute("currentPithStock", stockService.getCurrentPithStock());
-        model.addAttribute("currentFiberStock", stockService.getCurrentFiberStock());
-        
-        // Add recent productions
-        model.addAttribute("recentProductions", 
-            productionService.getRecentProductions(LocalDate.now()));
-        
+        model.addAttribute("currentWhiteFiberStock", stockService.getCurrentWhiteFiberStock());
+        model.addAttribute("currentBrownFiberStock", stockService.getCurrentBrownFiberStock());
+        model.addAttribute("currentLowECPithStock", stockService.getCurrentLowECPithStock());
+
+        model.addAttribute("recentProductions",
+                productionService.getRecentProductions(LocalDate.now()));
+
         return getViewPath("production/index");
     }
-    
+
     @PostMapping
-    public String createProduction(@ModelAttribute Production production, RedirectAttributes redirectAttributes) {
+    public String createProduction(@Valid @ModelAttribute Production production,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return getViewPath("production/index");
+        }
+
         try {
             productionService.createProduction(production);
-            redirectAttributes.addFlashAttribute("success", "Production batch completed successfully");
+            redirectAttributes.addFlashAttribute("success",
+                    "Production batch completed successfully");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("error",
+                    "Failed to complete production: " + e.getMessage());
         }
         return "redirect:/production";
     }
-    
+
     @GetMapping("/report")
     public String viewReport(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Model model) {
         model.addAttribute("date", date);
@@ -54,4 +69,4 @@ public class ProductionController extends BaseController {
         model.addAttribute("secondShift", productionService.getProductionsByDateAndShift(date, ShiftType.SECOND));
         return getViewPath("production-report/view");
     }
-} 
+}

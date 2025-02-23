@@ -12,23 +12,35 @@
     <div id="content">
         <div class="row">
             <!-- Stock Overview -->
-            <div class="col-md-6 mb-4">
+            <div class="col-md-12 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Current Stock</h5>
+                        <h5 class="card-title mb-0">Stock Overview</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="text-center">
-                                    <h6>Pith Stock</h6>
-                                    <h2 th:text="${currentPithStock + ' kg'}">0 kg</h2>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Regular Pith</h6>
+                                    <p class="mb-0" th:text="${regularPithStock + ' kg'}">0 kg</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="text-center">
-                                    <h6>Fiber Stock</h6>
-                                    <h2 th:text="${currentFiberStock + ' kg'}">0 kg</h2>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Low EC Pith</h6>
+                                    <p class="mb-0" th:text="${lowECPithStock + ' kg'}">0 kg</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">White Fiber</h6>
+                                    <p class="mb-0" th:text="${whiteFiberStock + ' bales'}">0 bales</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Brown Fiber</h6>
+                                    <p class="mb-0" th:text="${brownFiberStock + ' bales'}">0 bales</p>
                                 </div>
                             </div>
                         </div>
@@ -36,23 +48,58 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="col-md-6 mb-4">
+            <!-- Recent Activities -->
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Quick Actions</h5>
+                        <h5 class="card-title mb-0">Recent Productions</h5>
                     </div>
                     <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="/raw-materials" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> New Raw Material Entry
-                            </a>
-                            <a href="/production" class="btn btn-primary">
-                                <i class="fas fa-industry"></i> Start Production
-                            </a>
-                            <a href="/sales" class="btn btn-primary">
-                                <i class="fas fa-shopping-cart"></i> Record Sale
-                            </a>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Shift</th>
+                                        <th>Bales</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="prod : ${recentProductions}">
+                                        <td th:text="${#temporals.format(prod.batchCompletionTime, 'HH:mm')}"></td>
+                                        <td th:text="${prod.shift.description}"></td>
+                                        <td th:text="${prod.numBales}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Sales</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="sale : ${recentSales}">
+                                        <td th:text="${#temporals.format(sale.createdAt, 'dd-MM HH:mm')}"></td>
+                                        <td th:text="${sale.productType.displayName}"></td>
+                                        <td th:text="${sale.quantity}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

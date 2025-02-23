@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <title>Block Production</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Block Production</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Create Blocks
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/blocks/create}" method="post" th:object="${production}">
+                            <div class="form-group mb-3">
+                                <label for="pithType">Pith Type</label>
+                                <select class="form-control" id="pithType" name="pithType" required>
+                                    <option th:each="type : ${T(com.inventory.model.PithType).values()}"
+                                            th:value="${type}"
+                                            th:text="${type.displayName}">Regular</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="numberOfBlocks">Number of Blocks</label>
+                                <input type="number" class="form-control" id="numberOfBlocks" 
+                                       name="numberOfBlocks" required min="1">
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="productionTime">Production Time</label>
+                                <input type="datetime-local" class="form-control" 
+                                       id="productionTime" name="productionTime" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Create Blocks</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Current Stock
+                    </div>
+                    <div class="card-body">
+                        <p>Regular Pith Stock: <span th:text="${regularPithStock}">0</span> kg</p>
+                        <p>Low EC Pith Stock: <span th:text="${lowECPithStock}">0</span> kg</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <h3>Recent Productions</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Pith Type</th>
+                                <th>Number of Blocks</th>
+                                <th>Pith Used (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="prod : ${recentProductions}">
+                                <td th:text="${#temporals.format(prod.productionTime, 'dd-MM-yyyy HH:mm')}">01-01-2024 10:00</td>
+                                <td th:text="${prod.pithType.displayName}">Regular</td>
+                                <td th:text="${prod.numberOfBlocks}">10</td>
+                                <td th:text="${prod.numberOfBlocks * 5}">50</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

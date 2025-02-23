@@ -1,0 +1,25 @@
+<div class="form-group">
+    <label for="productType">Product Type</label>
+    <select class="form-control" id="productType" name="productType" required 
+            onchange="showAdditionalFields()">
+        <option th:each="type : ${T(com.inventory.model.ProductType).values()}"
+                th:value="${type}"
+                th:text="${type.displayName}">Regular Pith</option>
+    </select>
+</div>
+
+<div id="fiberTypeDiv" style="display:none" class="form-group">
+    <label for="fiberType">Fiber Type</label>
+    <select class="form-control" id="fiberType" name="fiberType">
+        <option value="BROWN">Brown Fiber</option>
+        <option value="WHITE">White Fiber</option>
+    </select>
+</div>
+
+<div id="pithTypeDiv" style="display:none" class="form-group">
+    <label for="pithType">Pith Type</label>
+    <select class="form-control" id="pithType" name="pithType">
+        <option value="REGULAR">Regular Pith</option>
+        <option value="LOW_EC">Low EC Pith</option>
+    </select>
+</div> 

@@ -14,59 +14,60 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import com.inventory.model.HuskType;
 
 @Service
 @RequiredArgsConstructor
 public class ProductionService {
-    
+
     private final ProductionRepository productionRepository;
     private final PithStockService pithStockService;
-    private final FibreStockService fibreStockService;
-    
+    private final WhiteFiberStockService whiteFiberStockService;
+    private final BrownFiberStockService brownFiberStockService;
+
     @Transactional
     public Production createProduction(Production production) {
         try {
-            // Generate batch number
-            Optional<Production> lastProduction = productionRepository.findFirstByProductionDateOrderByBatchNumberDesc(
-                getAdjustedDate(production.getBatchCompletionTime())
-            );
-            int batchNumber = lastProduction.map(p -> p.getBatchNumber() + 1).orElse(1);
-            production.setBatchNumber(batchNumber);
-            
-            // Save production
+            production.prePersist(); // This will set the fiber bales based on husk type
             Production savedProduction = productionRepository.save(production);
-            
-            // Update stocks - pith in kg, fiber in number of bales
+
+            // Update pith stock
             pithStockService.addStock(production.getPithQuantity());
-            fibreStockService.addStock(Double.valueOf(production.getFiberBales()));
-            
+
+            // Update fiber stock based on husk type
+            if (production.getHuskType() == HuskType.GREEN_HUSK) {
+                whiteFiberStockService.addStock(Double.valueOf(production.getWhiteFiberBales()));
+            } else {
+                brownFiberStockService.addStock(Double.valueOf(production.getBrownFiberBales()));
+            }
+
             return savedProduction;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create production: " + e.getMessage(), e);
         }
     }
-    
+
     private LocalDate getAdjustedDate(LocalDateTime dateTime) {
         if (dateTime.getHour() >= 0 && dateTime.getHour() < 8) {
             return dateTime.toLocalDate().minusDays(1);
         }
         return dateTime.toLocalDate();
     }
-    
+
     public List<Production> getProductionsByDateAndShift(LocalDate date, ShiftType shift) {
         List<Production> productions = productionRepository
-            .findByProductionDateAndShiftOrderByBatchCompletionTimeAsc(date, shift);
-        
+                .findByProductionDateAndShiftOrderByBatchCompletionTimeAsc(date, shift);
+
         LocalDateTime previousBatchTime = null;
         for (Production prod : productions) {
             prod.calculateTimeTaken(previousBatchTime);
             previousBatchTime = prod.getBatchCompletionTime();
         }
-        
+
         return productions;
     }
-    
+
     public List<Production> getRecentProductions(LocalDate date) {
         return productionRepository.findByProductionDateOrderByBatchCompletionTimeDesc(date);
     }
-} 
+}

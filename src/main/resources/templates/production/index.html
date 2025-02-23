@@ -19,16 +19,28 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="alert alert-info">
                                     <h6 class="alert-heading">Pith Stock</h6>
                                     <p class="mb-0" th:text="${currentPithStock + ' kg'}">0 kg</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="alert alert-info">
-                                    <h6 class="alert-heading">Fiber Stock</h6>
-                                    <p class="mb-0" th:text="${currentFiberStock + ' bales'}">0 bales</p>
+                                    <h6 class="alert-heading">White Fiber Stock</h6>
+                                    <p class="mb-0" th:text="${currentWhiteFiberStock + ' bales'}">0 bales</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Brown Fiber Stock</h6>
+                                    <p class="mb-0" th:text="${currentBrownFiberStock + ' bales'}">0 bales</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Low EC Pith Stock</h6>
+                                    <p class="mb-0" th:text="${currentLowECPithStock + ' kg'}">0 kg</p>
                                 </div>
                             </div>
                         </div>
@@ -61,6 +73,16 @@
                             <div class="mb-3">
                                 <label for="batchCompletionTime" class="form-label">Batch Completion Time</label>
                                 <input type="datetime-local" class="form-control" id="batchCompletionTime" th:field="*{batchCompletionTime}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="huskType" class="form-label">Husk Type</label>
+                                <select class="form-select" id="huskType" th:field="*{huskType}" required>
+                                    <option value="">Select Husk Type</option>
+                                    <option th:each="type : ${T(com.inventory.model.HuskType).values()}"
+                                            th:value="${type}"
+                                            th:text="${type.displayName}">
+                                    </option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary">Complete Batch</button>
                         </form>

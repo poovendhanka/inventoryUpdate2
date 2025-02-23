@@ -1,0 +1,13 @@
+<!-- Add these items to the existing nav list -->
+<li class="nav-item">
+    <a class="nav-link" th:classappend="${activeTab == 'cocopith' ? 'active' : ''}" 
+       href="/cocopith">
+        Cocopith Processing
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" th:classappend="${activeTab == 'blocks' ? 'active' : ''}" 
+       href="/blocks">
+        Block Production
+    </a>
+</li> 

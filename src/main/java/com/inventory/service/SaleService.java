@@ -13,34 +13,49 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class SaleService {
-    
+
     private final SaleRepository saleRepository;
     private final StockService stockService;
-    
+    private final BlockProductionService blockProductionService;
+    private static final double BALE_WEIGHT = 100.0; // kg per bale
+
     @Transactional
     public Sale createSale(Sale sale) {
-        // Generate invoice number
-        long count = saleRepository.count();
-        String invoiceNumber = String.format("INV-%05d", count + 1);
-        sale.setInvoiceNumber(invoiceNumber);
-        
-        // Reduce stock based on product type
-        if (sale.getProductType() == ProductType.PITH) {
-            stockService.reducePithStock(sale.getQuantity());
-        } else {
-            stockService.reduceFiberStock(sale.getQuantity());
-        }
-        
+        validateAndUpdateStock(sale);
         return saleRepository.save(sale);
     }
-    
+
+    private void validateAndUpdateStock(Sale sale) {
+        switch (sale.getProductType()) {
+            case FIBER_WHITE:
+                double whiteFiberQuantity = sale.getQuantity() * BALE_WEIGHT;
+                stockService.reduceWhiteFiberStock(whiteFiberQuantity);
+                break;
+            case FIBER_BROWN:
+                double brownFiberQuantity = sale.getQuantity() * BALE_WEIGHT;
+                stockService.reduceBrownFiberStock(brownFiberQuantity);
+                break;
+            case PITH_REGULAR:
+                stockService.reducePithStock(sale.getQuantity());
+                break;
+            case PITH_LOW_EC:
+                stockService.reduceLowECPithStock(sale.getQuantity());
+                break;
+            case BLOCK:
+                stockService.reduceBlockStock(sale.getQuantity());
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid product type");
+        }
+    }
+
     public List<Sale> getRecentSales() {
         return saleRepository.findTop10ByOrderBySaleDateDesc();
     }
-    
+
     public List<Sale> getSalesByDate(LocalDate date) {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
         return saleRepository.findBySaleDateBetweenOrderBySaleDateDesc(startOfDay, endOfDay);
     }
-} 
+}

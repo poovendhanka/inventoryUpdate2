@@ -18,11 +18,11 @@ import java.time.LocalDate;
 @RequestMapping("/sales")
 @RequiredArgsConstructor
 public class SaleController extends BaseController {
-    
+
     private final SaleService saleService;
     private final DealerService dealerService;
     private final StockService stockService;
-    
+
     @GetMapping
     public String showSalesPage(Model model, HttpServletRequest request) {
         model.addAttribute("activeTab", "sales");
@@ -30,18 +30,19 @@ public class SaleController extends BaseController {
         model.addAttribute("dealers", dealerService.getAllDealers());
         model.addAttribute("productTypes", ProductType.values());
         model.addAttribute("currentPithStock", stockService.getCurrentPithStock());
-        model.addAttribute("currentFiberStock", stockService.getCurrentFiberStock());
+        model.addAttribute("whiteFiberStock", stockService.getCurrentWhiteFiberStock());
+        model.addAttribute("brownFiberStock", stockService.getCurrentBrownFiberStock());
         model.addAttribute("recentSales", saleService.getRecentSales());
         return getViewPath("sales/index");
     }
-    
+
     @PostMapping
     public String createSale(@ModelAttribute Sale sale) {
         sale.setSaleDate(LocalDateTime.now());
         saleService.createSale(sale);
         return "redirect:/sales";
     }
-    
+
     @GetMapping("/report")
     public String viewReport(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
@@ -51,4 +52,4 @@ public class SaleController extends BaseController {
         model.addAttribute("sales", saleService.getSalesByDate(date));
         return getViewPath("sales/report");
     }
-} 
+}
